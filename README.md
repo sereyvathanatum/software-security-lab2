@@ -640,7 +640,7 @@ Submit:
 
 ## Further reading
 
-- OWASP Top 10:2025 — A05 Injection — `../../security_claude/md/A05_2025-Injection.md`
+- OWASP Top 10:2025 — A05 Injection
 - OWASP SQL Injection Prevention Cheat Sheet — <https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html>
 - OWASP XSS Prevention Cheat Sheet — <https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html>
 - OWASP OS Command Injection Defense — <https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html>
