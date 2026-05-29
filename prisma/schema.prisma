@@ -1,0 +1,35 @@
+// VULNERABLE schema for the Injection & XSS lab.
+// Plaintext passwords + a per-user `secret` so the SQL-injection dump (Lab 2)
+// has something juicy to steal. This lab is about INJECTION, not hashing —
+// password storage is covered in Session 5.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String // plaintext on purpose (see note above)
+  role     String @default("user") // "user" | "admin"
+  secret   String // dumped by the UNION-based SQLi in Lab 2
+}
+
+model Product {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  price       Int
+  // searched via a raw, concatenated LIKE query in /api/search (VULN: Lab 2)
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  author    String
+  body      String // rendered UNESCAPED in the guestbook (VULN: stored XSS, Lab 5)
+  createdAt DateTime @default(now())
+}

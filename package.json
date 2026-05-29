@@ -1,0 +1,33 @@
+{
+  "name": "ses8-injection-xss-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "seed": "tsx prisma/seed.ts",
+    "exploit:sqli": "tsx scripts/sqli-login-bypass.ts",
+    "exploit:dump": "tsx scripts/sqli-dump.ts",
+    "exploit:cmdi": "tsx scripts/cmdi.ts",
+    "exploit:xss": "tsx scripts/xss-steal.ts",
+    "test:exploits": "tsx scripts/run-all.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "next": "14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
