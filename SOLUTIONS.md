@@ -20,14 +20,18 @@ import { setSession } from "@/lib/session";
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
   const user = await db.user.findFirst({
-    where: { username, password },               // parameterized by Prisma
+    where: { username, password }, // parameterized by Prisma
     select: { id: true, username: true, role: true },
   });
   if (!user) {
     return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
   }
   setSession(user.username);
-  return NextResponse.json({ ok: true, username: user.username, role: user.role });
+  return NextResponse.json({
+    ok: true,
+    username: user.username,
+    role: user.role,
+  });
 }
 ```
 
@@ -40,7 +44,7 @@ import { db } from "@/lib/db";
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") ?? "";
   const results = await db.product.findMany({
-    where: { name: { contains: q } },            // parameterized
+    where: { name: { contains: q } }, // parameterized
     select: { id: true, name: true, description: true },
   });
   return NextResponse.json({ results });
@@ -68,7 +72,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
-const HOST_RE = /^[a-zA-Z0-9.-]{1,253}$/;        // allowlist validation
+const HOST_RE = /^[a-zA-Z0-9.-]{1,253}$/; // allowlist validation
 
 export async function POST(req: NextRequest) {
   const { host } = await req.json();
@@ -77,10 +81,18 @@ export async function POST(req: NextRequest) {
   }
   try {
     // execFile = no shell, args passed as an array → metacharacters are inert.
-    const { stdout, stderr } = await execFileAsync("ping", ["-c", "1", host], { timeout: 5000 });
-    return NextResponse.json({ cmd: `ping -c 1 ${host}`, output: stdout + stderr });
+    const { stdout, stderr } = await execFileAsync("ping", ["-c", "1", host], {
+      timeout: 5000,
+    });
+    return NextResponse.json({
+      cmd: `ping -c 1 ${host}`,
+      output: stdout + stderr,
+    });
   } catch (e: any) {
-    return NextResponse.json({ cmd: `ping -c 1 ${host}`, output: (e?.stdout ?? "") + (e?.stderr ?? "") });
+    return NextResponse.json({
+      cmd: `ping -c 1 ${host}`,
+      output: (e?.stdout ?? "") + (e?.stderr ?? ""),
+    });
   }
 }
 ```
@@ -96,11 +108,13 @@ export async function POST(req: NextRequest) {
 Replace the `dangerouslySetInnerHTML` banner:
 
 ```tsx
-{submitted !== null && (
-  <div className="text-sm text-slate-700">
-    Showing results for: <b>{submitted}</b>
-  </div>
-)}
+{
+  submitted !== null && (
+    <div className="text-sm text-slate-700">
+      Showing results for: <b>{submitted}</b>
+    </div>
+  );
+}
 ```
 
 JSX `{submitted}` is auto-escaped, so `<img onerror=...>` renders as text.
@@ -120,12 +134,18 @@ JSX `{submitted}` is auto-escaped, so `<img onerror=...>` renders as text.
 ```ts
 function escapeHtml(s: string) {
   return s
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 // in POST:
 const comment = await db.comment.create({
-  data: { author: (author || "anon").slice(0, 40), body: escapeHtml(body ?? "") },
+  data: {
+    author: (author || "anon").slice(0, 40),
+    body: escapeHtml(body ?? ""),
+  },
 });
 ```
 
@@ -138,7 +158,7 @@ const comment = await db.comment.create({
 ```ts
 cookies().set(SESSION_COOKIE, username, {
   path: "/",
-  httpOnly: true,                 // document.cookie can no longer read it
+  httpOnly: true, // document.cookie can no longer read it
   sameSite: "lax",
   secure: process.env.NODE_ENV === "production",
   maxAge: 60 * 60 * 8,
@@ -154,7 +174,7 @@ cookies().set(SESSION_COOKIE, username, {
 ### `app/welcome/page.tsx`
 
 ```ts
-ref.current.textContent = `Welcome back, ${name}!`;   // was innerHTML
+ref.current.textContent = `Welcome back, ${name}!`; // was innerHTML
 ```
 
 ### `next.config.js` (site-wide CSP)
@@ -163,13 +183,18 @@ ref.current.textContent = `Welcome back, ${name}!`;   // was innerHTML
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
-    return [{
-      source: "/:path*",
-      headers: [{
-        key: "Content-Security-Policy",
-        value: "default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'",
-      }],
-    }];
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'",
+          },
+        ],
+      },
+    ];
   },
 };
 module.exports = nextConfig;
@@ -185,22 +210,3 @@ module.exports = nextConfig;
 After all patches: `npm run test:exploits` → every row reads `patched`.
 
 ---
-
-## Grading rubric (suggested, 100 pts)
-
-| Criteria | Pts |
-|---|---|
-| Lab 1 — SQLi auth bypass exploited **and** fixed (parameterized) | 12 |
-| Lab 2 — UNION dump exploited (captured FLAG) **and** fixed | 12 |
-| Lab 3 — Command injection exploited **and** fixed (validate + `execFile`) | 12 |
-| Lab 4 — Reflected XSS exploited **and** fixed (auto-escape) | 10 |
-| Lab 5 — Stored XSS + cookie theft exploited **and** fixed (encode + `HttpOnly`) | 14 |
-| Lab 6 — DOM XSS exploited **and** fixed (`textContent`) | 10 |
-| Lab 10 — CSP header present and reasonable | 8 |
-| `npm run test:exploits` shows all `patched` | 10 |
-| `LAB_NOTES.md` complete: CWE + OWASP control cited per lab, before/after screenshots | 12 |
-| **Total** | **100** |
-
-Deductions: leaving any `$queryRawUnsafe` / `dangerouslySetInnerHTML` / shell
-`exec` with user input in the code; client-side-only validation; echoing raw DB
-errors to users.
